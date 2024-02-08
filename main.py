@@ -19,24 +19,37 @@ input_code = '''
 Hello // IDENTIFIER, assuming your lexer can recognize identifiers
 , // Unspecified in TokenType, assuming part of general syntax or identifiers
 world! // Unspecified in TokenType, assuming part of general syntax or identifiers
+12345
+AND
+CLASS
+ELSE
+FALSE
+FOR
+IF
+NIL
+OR
 '''
 
 TokenType = Enum(
     'TokenType',
     [
-        # the first group of tokens are unambiguous single-characters
+        # The first group of tokens are unambiguous single-characters
         'SEMICOLON',
-        'LEFT_PAREN',
-        'RIGHT_PAREN',
-        'LEFT_BRACE', 'RIGHT_BRACE', 
+        'LEFT_PAREN', 'RIGHT_PAREN',
+        'LEFT_BRACE', 'RIGHT_BRACE',
         'PLUS', 'MINUS', 'STAR', 'SLASH',
-        # the following tokesn are 1- or 2-characters with short prefix
-        'EQUAL', 'EQUAL_EQUAL', # = vs ==
-        'BANG', 'BANG_EQUAL', # ! vs !=
+        # The following tokens are 1- or 2-characters with shared prefix
+        'EQUAL', 'EQUAL_EQUAL',  # = vs ==
+        'BANG', 'BANG_EQUAL',  # ! vs !=
         # Identifiers and literals
-        'IDENTIFIER', 'STRING'
+        'IDENTIFIER', 'STRING', 'NUMBER',
+        # Keywords
+        'AND', 'CLASS', 'ELSE', 'FALSE', 'FOR', 'IF', 'NIL', 'OR',
+        # Exponentiation operator (choose the appropriate one based on your syntax preference)
+        'POWER',  # For '^' or '**' as exponentiation operator
     ]
 )
+
 
 @dataclass
 class Token:
@@ -82,6 +95,13 @@ for line_num, line in enumerate(input_code.splitlines(), start=1):
                     token = Token(TokenType.EQUAL_EQUAL, '==', line_num)
                     current += 2
                 tokens.append(token)
+            case _ if next_char.isdigit():
+                start = current
+                current += 1
+                while not isEndOfLine() and line[current].isdigit():
+                    current += 1
+                token = Token(TokenType.NUMBER, line[start:current], line_num)
+                tokens.append(token)
             case '!':
                 if peek('='):
                     token = Token(TokenType.BANG_EQUAL, '!=', line_num)
@@ -91,11 +111,13 @@ for line_num, line in enumerate(input_code.splitlines(), start=1):
                     current += 1
             case '"':
                 start = current
+                current += 1
                 while not isEndOfLine():
                     if peek('"'):
                         current += 1
                         token = Token(TokenType.STRING, line[start:current+1], line_num)
                         tokens.append(token)
+                        break
                     else:
                         current += 1
             case '{':
@@ -122,6 +144,27 @@ for line_num, line in enumerate(input_code.splitlines(), start=1):
                 token = Token(TokenType.SLASH, next_char, line_num)
                 tokens.append(token)
                 current += 1
+            case _ if next_char.isalpha() or next_char == '_':
+                start = current
+                while current < len(line) and (line[current].isalnum() or line[current] == '_'):
+                    current += 1
+                lexeme = line[start:current]
+                if lexeme.upper() in TokenType.__members__:
+                    token_type = TokenType[lexeme.upper()]
+                else:
+                    token_type = TokenType.IDENTIFIER
+                tokens.append(Token(token_type, lexeme, line_num))
+            case '^':
+                tokens.append(Token(TokenType.POWER, next_char, line_num))
+                current += 1
+            case '*':
+                if peek('*'):
+                    tokens.append(Token(TokenType.POWER, '**', line_num))
+                    current += 2
+                else:
+                    tokens.append(Token(TokenType.STAR, next_char, line_num))
+                    current += 1
+
             case _:
                 print(f"Unrecognized token on line {line_num}, character '{next_char}'. Context: '{line[current:current+10]}'.")
                 break
