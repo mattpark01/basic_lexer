@@ -1,4 +1,4 @@
-# Lexer Project
+# Matt's Lexer
 
 This project implements a lexer (also known as a tokenizer or scanner) in Python. The lexer's primary purpose is to read source code from a programming language and break it down into a series of tokens that can be used by a parser to construct an abstract syntax tree (AST).
 
