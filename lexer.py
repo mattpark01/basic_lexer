@@ -2,33 +2,14 @@ from enum import Enum
 from dataclasses import dataclass
 
 input_code = '''
-"example" // STRING
-{ // LEFT_BRACE
-} // RIGHT_BRACE
-( // LEFT_PAREN
-) // RIGHT_PAREN
-; // SEMICOLON
-+ // PLUS
-- // MINUS
-* // STAR
-/ // SLASH
-= // EQUAL
-== // EQUAL_EQUAL
-! // BANG
-!= // BANG_EQUAL
-Hello // IDENTIFIER, assuming your lexer can recognize identifiers
-, // Unspecified in TokenType, assuming part of general syntax or identifiers
-world! // Unspecified in TokenType, assuming part of general syntax or identifiers
-12345
-AND
-CLASS
-ELSE
-FALSE
-FOR
-IF
-NIL
-OR
+if (temp < 32) {
+   message = "It's freezing!";
+}
 '''
+
+# input_code = '''
+# x  ^ 2   message = "Example
+# '''
 
 TokenType = Enum(
     'TokenType',
@@ -41,6 +22,7 @@ TokenType = Enum(
         # The following tokens are 1- or 2-characters with shared prefix
         'EQUAL', 'EQUAL_EQUAL',  # = vs ==
         'BANG', 'BANG_EQUAL',  # ! vs !=
+        'LESS', 'LESS_EQUAL',  # < vs <=
         # Identifiers and literals
         'IDENTIFIER', 'STRING', 'NUMBER',
         # Keywords
@@ -62,6 +44,11 @@ tokens = []
 for line_num, line in enumerate(input_code.splitlines(), start=1):
     current = 0
     while current < len(line):
+        char = line[current]
+        if char.isspace():
+            current += 1
+            continue  # Skip to the next iteration of the loop to bypass whitespace
+
         def isEndOfLine():
             return current >= len(line)
         
@@ -72,6 +59,12 @@ for line_num, line in enumerate(input_code.splitlines(), start=1):
         # the next character to look at is: line[current]
         next_char = line[current]
         # determine_current_char(next_char)
+
+        while current < len(line) and line[current].isspace():
+            current += 1
+        if current >= len(line):
+            break  # Exit the loop if we've reached the end of the line after skipping whitespace
+
         match next_char:
             case ";":
                 token = Token(TokenType.SEMICOLON, next_char, line_num)
@@ -137,9 +130,15 @@ for line_num, line in enumerate(input_code.splitlines(), start=1):
                 tokens.append(token)
                 current += 1
             case '*':
-                token = Token(TokenType.STAR, next_char, line_num)
-                tokens.append(token)
-                current += 1
+                if peek('*'):
+                    tokens.append(Token(TokenType.POWER, '**', line_num))
+                    current += 2
+                else:
+                    token = Token(TokenType.STAR, '*', line_num)
+                    tokens.append(token)
+                    current += 1
+
+
             case '/':
                 token = Token(TokenType.SLASH, next_char, line_num)
                 tokens.append(token)
@@ -157,13 +156,10 @@ for line_num, line in enumerate(input_code.splitlines(), start=1):
             case '^':
                 tokens.append(Token(TokenType.POWER, next_char, line_num))
                 current += 1
-            case '*':
-                if peek('*'):
-                    tokens.append(Token(TokenType.POWER, '**', line_num))
-                    current += 2
-                else:
-                    tokens.append(Token(TokenType.STAR, next_char, line_num))
-                    current += 1
+            case '<':
+                token = Token(TokenType.LESS, '<', line_num)
+                tokens.append(token)
+                current += 1
 
             case _:
                 print(f"Unrecognized token on line {line_num}, character '{next_char}'. Context: '{line[current:current+10]}'.")

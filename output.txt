@@ -1,0 +1,39 @@
+# Lexer Outputs
+
+input_code = '''
+if (temp < 32) {
+   message = "It's freezing!";
+}
+'''
+
+Lexer output for first provided input code:
+matthewpark@Matthews-MacBook-Pro feb5 % python3 lexer.py
+Scanning At                    | Found A              | Lexeme               | Line                
+---------------------------------------------------------------------------------------------------
+Scanning at: 2, index: ...     | Found a: IF          | 'if'                 | 2                   
+Scanning at: 2, index: ...     | Found a: LEFT_PAREN  | '('                  | 2                   
+Scanning at: 2, index: ...     | Found a: IDENTIFIER  | 'temp'               | 2                   
+Scanning at: 2, index: ...     | Found a: LESS        | '<'                  | 2                   
+Scanning at: 2, index: ...     | Found a: NUMBER      | '32'                 | 2                   
+Scanning at: 2, index: ...     | Found a: RIGHT_PAREN | ')'                  | 2                   
+Scanning at: 2, index: ...     | Found a: LEFT_BRACE  | '{'                  | 2                   
+Scanning at: 3, index: ...     | Found a: IDENTIFIER  | 'message'            | 3                   
+Scanning at: 3, index: ...     | Found a: EQUAL       | '='                  | 3                   
+Scanning at: 3, index: ...     | Found a: STRING      | '"It's freezing!"'   | 3                   
+Scanning at: 4, index: ...     | Found a: RIGHT_BRACE | '}'                  | 4                   
+
+---
+
+input_code = '''
+x  ^ 2   message = "Example
+'''
+
+Lexer output for second provided input code:
+matthewpark@Matthews-MacBook-Pro feb5 % python3 lexer.py
+Scanning At                    | Found A              | Lexeme               | Line                
+---------------------------------------------------------------------------------------------------
+Scanning at: 2, index: ...     | Found a: IDENTIFIER  | 'x'                  | 2                   
+Scanning at: 2, index: ...     | Found a: POWER       | '^'                  | 2                   
+Scanning at: 2, index: ...     | Found a: NUMBER      | '2'                  | 2                   
+Scanning at: 2, index: ...     | Found a: IDENTIFIER  | 'message'            | 2                   
+Scanning at: 2, index: ...     | Found a: EQUAL       | '='                  | 2                   
