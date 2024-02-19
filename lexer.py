@@ -4,6 +4,13 @@ from dataclasses import dataclass
 input_code = '''
 if (temp < 32) {
    message = "It's freezing!";
+} else {
+    message = "It's not freezing!";
+}
+
+message = false
+while (temp == 32) {
+    message = true
 }
 '''
 
@@ -14,6 +21,7 @@ if (temp < 32) {
 TokenType = Enum(
     'TokenType',
     [
+        'VAR',
         # The first group of tokens are unambiguous single-characters
         'SEMICOLON',
         'LEFT_PAREN', 'RIGHT_PAREN',
@@ -26,7 +34,7 @@ TokenType = Enum(
         # Identifiers and literals
         'IDENTIFIER', 'STRING', 'NUMBER',
         # Keywords
-        'AND', 'CLASS', 'ELSE', 'FALSE', 'FOR', 'IF', 'NIL', 'OR',
+        'WHILE', 'AND', 'CLASS', 'ELSE', 'TRUE', 'FALSE', 'FOR', 'IF', 'NIL', 'OR',
         # Exponentiation operator (choose the appropriate one based on your syntax preference)
         'POWER',  # For '^' or '**' as exponentiation operator
     ]
@@ -35,11 +43,13 @@ TokenType = Enum(
 
 @dataclass
 class Token:
-    token_type: TokenType
+    tokenType: TokenType
     lexeme: str
     line_num: int 
 
+
 tokens = []
+
 
 for line_num, line in enumerate(input_code.splitlines(), start=1):
     current = 0
@@ -137,8 +147,6 @@ for line_num, line in enumerate(input_code.splitlines(), start=1):
                     token = Token(TokenType.STAR, '*', line_num)
                     tokens.append(token)
                     current += 1
-
-
             case '/':
                 token = Token(TokenType.SLASH, next_char, line_num)
                 tokens.append(token)
@@ -147,12 +155,29 @@ for line_num, line in enumerate(input_code.splitlines(), start=1):
                 start = current
                 while current < len(line) and (line[current].isalnum() or line[current] == '_'):
                     current += 1
+            
                 lexeme = line[start:current]
+                
                 if lexeme.upper() in TokenType.__members__:
-                    token_type = TokenType[lexeme.upper()]
+                    tokenType = TokenType[lexeme.upper()]
                 else:
-                    token_type = TokenType.IDENTIFIER
-                tokens.append(Token(token_type, lexeme, line_num))
+                    tokenType = TokenType.IDENTIFIER
+                    
+                if lexeme == "if":
+                    token = Token(TokenType.IF, lexeme, line_num)
+                elif lexeme == "else":
+                    token = Token(TokenType.ELSE, lexeme, line_num)
+                elif lexeme == "var":
+                    token = Token(TokenType.VAR, lexeme, line_num)
+                elif lexeme == "while":
+                    token = Token(TokenType.WHILE, lexeme, line_num)
+                elif lexeme == "true":
+                    token = Token(TokenType.TRUE, lexeme, line_num)
+                elif lexeme == "false":
+                    token = Token(TokenType.FALSE, lexeme, line_num)
+                else:
+                    token = Token(TokenType.IDENTIFIER, lexeme, line_num)
+                tokens.append(Token(tokenType, lexeme, line_num))
             case '^':
                 tokens.append(Token(TokenType.POWER, next_char, line_num))
                 current += 1
@@ -165,27 +190,83 @@ for line_num, line in enumerate(input_code.splitlines(), start=1):
                 print(f"Unrecognized token on line {line_num}, character '{next_char}'. Context: '{line[current:current+10]}'.")
                 break
 
+
 def print_tokens(tokens):
     # Standard column widths
     scanning_width = 30
-    token_type_width = 20
+    tokenType_width = 20
     lexeme_width = 20
     line_width = 20  # Adjust if it seems too wide for line numbers
 
     # Print header
-    header_format = f"{'Scanning At':<{scanning_width}} | {'Found A':<{token_type_width}} | {'Lexeme':<{lexeme_width}} | {'Line':<{line_width}}"
+    header_format = f"{'Scanning At':<{scanning_width}} | {'Found A':<{tokenType_width}} | {'Lexeme':<{lexeme_width}} | {'Line':<{line_width}}"
     print(header_format)
     print("-" * len(header_format))  # Dynamically adjust based on header length
 
     # Print each token
     for token in tokens:
         scanning_str = f"Scanning at: {token.line_num}, index: ..." # Placeholder for index if available
-        token_type_str = f"Found a: {token.token_type.name}"
+        tokenType_str = f"Found a: {token.tokenType.name}"
         lexeme_str = f"'{token.lexeme}'"
         line_str = str(token.line_num)
         # Format the output string
-        output_format = f"{scanning_str:<{scanning_width}} | {token_type_str:<{token_type_width}} | {lexeme_str:<{lexeme_width}} | {line_str:<{line_width}}"
+        output_format = f"{scanning_str:<{scanning_width}} | {tokenType_str:<{tokenType_width}} | {lexeme_str:<{lexeme_width}} | {line_str:<{line_width}}"
         print(output_format)
+
 
 # Example usage with the tokens list populated previously
 print_tokens(tokens)
+
+
+currentToken = 0
+
+
+def parseProgram():
+    statements = []
+    while statement := parseStatement():
+        statements.append(statement)
+    return statements
+
+
+def parseStatement():
+    nextToken = tokens[currentToken]
+    match nextToken.tokenType:
+        case TokenType.IF:
+            return parseIfStatement()
+        case TokenType.VAR:
+            return parseVarDeclaration()
+        case TokenType.WHILE:
+            return parseWhileStatement()
+        case TokenType.LEFT_BRACE:
+            return parseBlock()
+        case _:
+            raise SyntaxError(f"Unexpected token: {nextToken.TokenType} {{nextToken.lexeme}} at line {nextToken.line_num}")
+
+
+def parseIfStatement():
+    pass
+
+
+def parseVarDeclaration():
+    global currentToken
+    nextToken = tokens[currentToken]
+    if not nextToken == TokenType.VAR:
+        raise SyntaxError(f"Unexpected token: {nextToken.TokenType} {{nextToken.lexeme}} at line {nextToken.line_num}")
+    currentToken += 1
+    # nextToken = token[currentToken]
+    if not nextToken == TokenType.IDENTIFIER:
+        raise SyntaxError(f"Expected IDENTIFIER: {nextToken.TokenType} {{nextToken.lexeme}} at line {nextToken.line_num}")
+    currentToken += 1
+    nextToken = tokens[currentToken]
+    if nextToken == TokenType.EQUAL:
+        pass
+    elif nextToken == TokenType.SEMICOLON:
+        raise SyntaxError(f"Expected EQUAL or SEMICOLON: {nextToken.TokenType} {{nextToken.lexeme}} at line {nextToken.line_num}")
+
+
+def parseWhileStatement():
+    pass
+
+
+def parseBlock():
+    pass
