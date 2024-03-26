@@ -2,7 +2,7 @@
 
 Welcome to the Splang Programming Language - a harmonious blend of simplicity, safety, and versatility. Splang marries the effortless syntax of Python with the memory safety and performance of Rust, tailored for both high-level applications and systems programming. Moreover, its seamless interoperability with C opens a gateway to a vast ecosystem, making Splang an ideal choice for developers seeking efficiency, readability, and the power to operate close to the metal.
 
-## Development Status: Under Construction 🚧
+## Development Status: Under Construction 🚧 Do not use in production.
 
 ## Current Features
 
