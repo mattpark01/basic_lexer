@@ -1,26 +1,64 @@
-# Basic Lexer
+# Splang Programming Language
 
-This project implements a lexer (also known as a tokenizer or scanner) in Python. The lexer's primary purpose is to read source code from a programming language and break it down into a series of tokens that can be used by a parser to construct an abstract syntax tree (AST).
+Welcome to the Splang Programming Language - a harmonious blend of simplicity, safety, and versatility. Splang marries the effortless syntax of Python with the memory safety and performance of Rust, tailored for both high-level applications and systems programming. Moreover, its seamless interoperability with C opens a gateway to a vast ecosystem, making Splang an ideal choice for developers seeking efficiency, readability, and the power to operate close to the metal.
 
-## Features
+## Development Status: Under Construction 🚧
 
-- Tokenizes a predefined set of tokens including identifiers, keywords, literals (strings, numbers), and operators.
-- Supports both single-character and multi-character operators.
-- Recognizes and ignores comments in the source code.
-- Handles lexical errors with informative messages.
+## Current Features
+
+- **Simple Syntax**: Splang's syntax is designed to be easy to read and write, with clear structure and minimal boilerplate.
+- **Static Typing**: Offers the safety and performance of static typing, making your programs more robust and faster.
+- **Memory Management**: Manual and automated memory management capabilities to suit different scenarios and optimization needs.
+- **Interoperability**: Designed for seamless integration with C libraries, allowing you to leverage existing native libraries.
+- **Rich Standard Library**: Comes with a comprehensive standard library that covers common programming needs, from data manipulation to networking.
+
+## Installation
+
+Currently, Splang can be compiled from source. Here are the steps to get it up and running on your machine:
+
+1. Clone the Splang repository:
+
+   ```bash
+   git clone https://github.com/mattpark01/splang.git
+   ```
+
+2. Navigate into the Splang directory:
+
+   ```bash
+   cd splang
+   ```
+
+3. Build Splang from source (make sure you have GCC or Clang installed):
+
+   ```bash
+   make
+   ```
+
+4. Optionally, install Splang to your system:
+
+   ```bash
+   sudo make install
+   ```
 
 ## Getting Started
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
+Here's a simple Splang program to get you started:
 
-### Prerequisites
+```splang
+let greeting = "Hello, Splang!"
+print(greeting)
+```
 
-- Python 3.8 or newer
-
-### Installing
-
-Clone the repository to your local machine:
+Save this code in a file named `hello.sp`, and run it using the Splang interpreter:
 
 ```bash
-git clone https://github.com/mattpark01/basic_lexer.git
+splang hello.sp
 ```
+
+## License
+
+Splang is licensed under the MIT License.
+
+## Acknowledgments
+
+Splang is inspired by languages such as Python, Rust, and C.
